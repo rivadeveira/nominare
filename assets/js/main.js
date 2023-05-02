@@ -8,7 +8,8 @@
 
 	var	$window = $(window),
 		$body = $('body'),
-		$sidebar = $('#sidebar');
+		$sidebar = $('#sidebar'),
+		unmuted = false;
 
 	// Breakpoints.
 		breakpoints({
@@ -22,14 +23,41 @@
 	// Hack: Enable IE flexbox workarounds.
 		if (browser.name == 'ie')
 			$body.addClass('is-ie');
+	
+	// Video.
+		$('#playVideo').on('click', function($event) {
+			//$('#welcomeVideo')[0].play();
+			videoAutoPlay();
+		}); 
 
 	// Play initial animations on page load.
-		$window.on('load', function() {
-			window.setTimeout(function() {
-				$body.removeClass('is-preload');
-			}, 100);
-		});
+		$window
+			.on('load', function() {
+				window.setTimeout(function() {
+					$body.removeClass('is-preload');
+				}, 100);
+			})
+			//.one('click', videoAutoPlay);
+		$('#welcomeVideo').on("ended", function($event) {
+			const $playCta = $('#playVideo');
+			const $playIcon = $playCta.find('.fa-volume-up');
+			if ($playIcon.length) {
+				$playIcon.removeClass('fa-volume-up').addClass('fa-play');
+			}
+			$playCta.removeClass('wrapper-media__play--played');
+		})
 
+		function videoAutoPlay($event) {
+			$('#playVideo').addClass('wrapper-media__play--played');
+			const $video = $("#welcomeVideo")[0];
+			if ($video.currentTime != 0) {
+				$video.currentTime = 0;
+				$video.play();
+			}
+			if ($video.muted) {
+				$video.muted = false;
+			}
+		}
 	// Forms.
 
 		// Hack: Activate non-input submits.
@@ -40,10 +68,25 @@
 					event.preventDefault();
 
 				// Submit form.
-					$(this).parents('form').submit();
-
+					var $form = $(this).parents('form');
+					var payload = $form.serialize();
+					$.ajax({
+						type:'post',
+						url: $form[0].action,
+						data: payload,
+						beforeSend:function(e){
+							console.log("before send", e)
+						},
+						complete:function(e){
+							console.log("complete send", e)
+						},
+						success:function(result){
+							alert(result?.mensaje || "Algo ocurrio con el mensaje");
+							$form[0].reset();
+						}
+					});
 			});
-
+		
 	// Sidebar.
 		if ($sidebar.length > 0) {
 
