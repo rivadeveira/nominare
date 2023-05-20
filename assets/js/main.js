@@ -61,31 +61,36 @@
 	// Forms.
 
 		// Hack: Activate non-input submits.
-			$('form').on('click', '.submit', function(event) {
+			$('form')
+				.on('click', '.submit', function(event) {
 
-				// Stop propagation, default.
-					event.stopPropagation();
-					event.preventDefault();
+					// Stop propagation, default.
+						event.stopPropagation();
+						event.preventDefault();
 
-				// Submit form.
-					var $form = $(this).parents('form');
-					var payload = $form.serialize();
-					$.ajax({
-						type:'post',
-						url: $form[0].action,
-						data: payload,
-						beforeSend:function(e){
-							console.log("before send", e)
-						},
-						complete:function(e){
-							console.log("complete send", e)
-						},
-						success:function(result){
-							alert(result?.mensaje || "Algo ocurrio con el mensaje");
-							$form[0].reset();
-						}
-					});
-			});
+					// Submit form.
+						var $form = $(this).parents('form');
+						var payload = $form.serialize();
+						$.ajax({
+							type:'post',
+							url: $form[0].action,
+							data: payload,
+							beforeSend:function(e){
+								console.log("before send", e)
+							},
+							complete:function(e){
+								console.log("complete send", e)
+							},
+							success:function(result){
+								alert(result?.mensaje || "Algo ocurrio con el mensaje");
+								$form[0].reset();
+							}
+						});
+				})
+				.on('input', function(event) {
+					const form = event.currentTarget;
+					form.querySelector('button.submit').disabled = !(form.checkValidity())
+				});
 		
 	// Sidebar.
 		if ($sidebar.length > 0) {
